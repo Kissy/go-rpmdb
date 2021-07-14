@@ -17,6 +17,7 @@ type PackageInfo struct {
 	Size      int
 	License   string
 	Vendor    string
+	URL       string
 	Files     []FileInfo
 }
 
@@ -39,6 +40,7 @@ const (
 	RPMTAG_SIZE        = 1009 /* i */
 	RPMTAG_LICENSE     = 1014 /* s */
 	RPMTAG_VENDOR      = 1011 /* s */
+	RPMTAG_URL         = 1020 /* s */
 	RPMTAG_DIRINDEXES  = 1116 /* i[] */
 	RPMTAG_BASENAMES   = 1117 /* s[] */
 	RPMTAG_DIRNAMES    = 1118 /* s[] */
@@ -166,6 +168,11 @@ func newPackage(indexEntries []indexEntry) (*PackageInfo, error) {
 			if pkgInfo.Vendor == "(none)" {
 				pkgInfo.Vendor = ""
 			}
+		case RPMTAG_URL:
+			if indexEntry.Info.Type != RPM_STRING_TYPE {
+				return nil, xerrors.New("invalid tag size")
+			}
+			pkgInfo.URL = parseString(indexEntry.Data)
 		case RPMTAG_SIZE:
 			if indexEntry.Info.Type != RPM_INT32_TYPE {
 				return nil, xerrors.New("invalid tag size")
